@@ -1,0 +1,686 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#111827">
+<link rel="manifest" href="manifest.webmanifest">
+<title>あと何円？ v1.1</title>
+<style>
+:root{
+  font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  color:#172033;background:#f5f7fb;font-synthesis:none;
+}
+*{box-sizing:border-box}
+body{margin:0;background:linear-gradient(180deg,#eef2ff 0,#f7f8fc 220px,#f5f7fb 100%);color:#172033}
+.wrap{max-width:720px;margin:auto;padding:26px 16px 88px}
+h1{margin:0;font-size:29px;letter-spacing:-.8px}
+h2{margin:0 0 14px;font-size:18px;letter-spacing:-.25px}
+.sub{color:#7a8499;font-size:13px;margin:5px 0 18px}
+small{color:#8992a5;line-height:1.55}
+.card{
+  background:rgba(255,255,255,.94);border:1px solid rgba(224,228,238,.9);
+  border-radius:22px;padding:18px;margin-bottom:13px;
+  box-shadow:0 8px 28px rgba(42,52,85,.055)
+}
+label{display:block;font-size:13px;font-weight:800;color:#566078;margin:14px 0 7px}
+input,select,button{font:inherit}
+input,select{
+  width:100%;padding:13px 14px;border:1px solid #dde2ec;border-radius:13px;
+  background:#f9fafc;color:#172033;outline:none;transition:.18s
+}
+input:focus,select:focus{border-color:#7c8cff;background:#fff;box-shadow:0 0 0 3px rgba(124,140,255,.12)}
+button{
+  padding:12px 14px;border:0;border-radius:13px;background:#20283a;color:#fff;
+  font-weight:800;cursor:pointer;transition:.16s
+}
+button:active{transform:scale(.98)}
+.full{width:100%}
+.secondary{background:#eef1f6;color:#394158}
+.dangerbtn{background:#fff0f0;color:#bd4545;padding:7px 10px;font-size:12px}
+.hero{
+  text-align:left;padding:22px;background:linear-gradient(135deg,#20283a,#3a4561);
+  color:#fff;border:0;box-shadow:0 14px 35px rgba(32,40,58,.20)
+}
+.hero .label{color:#cbd2df;font-size:13px;font-weight:800}
+.hero small{color:#d7dce7}
+.amount{font-size:47px;font-weight:900;margin:5px 0 4px;letter-spacing:-2px}
+.meta{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.pill{background:#f7f8fb;border:1px solid #eceff4;border-radius:16px;padding:13px}
+.pill small{font-size:11px}
+.pill b{display:block;font-size:17px;margin-top:4px;letter-spacing:-.3px}
+.addrow{display:grid;grid-template-columns:1fr 86px;gap:8px}
+.money-preview{font-weight:900;font-size:16px;margin-top:6px;min-height:21px;color:#566078}
+.payments,.history{list-style:none;padding:0;margin:9px 0 0}
+.payments li,.history li{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:11px 2px;border-bottom:1px solid #edf0f5}
+.total{display:flex;justify-content:space-between;margin-top:13px;padding-top:13px;border-top:1px solid #dfe4ed;font-size:17px;font-weight:900}
+.danger{color:#c14d4d}.good{color:#238263}
+.toggleRow{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 1px;border-bottom:1px solid #f0f2f6}
+.toggleRow:last-child{border-bottom:0}
+.switch{position:relative;width:49px;height:28px;flex:0 0 auto;margin:0}
+.switch input{display:none}
+.slider{position:absolute;inset:0;background:#d9dee8;border-radius:99px;cursor:pointer;transition:.18s}
+.slider:before{content:"";position:absolute;width:22px;height:22px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.18s;box-shadow:0 2px 5px rgba(0,0,0,.14)}
+.switch input:checked+.slider{background:#5869df}
+.switch input:checked+.slider:before{transform:translateX(21px)}
+.info{background:#f6f7fa;border:1px solid #eceff4;border-radius:15px;padding:13px;margin-top:11px}
+.info strong{font-size:16px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.calendarHead{display:flex;justify-content:space-between;align-items:center;margin:16px 0 10px}
+.calendarHead button{padding:7px 12px;background:#f0f2f6;color:#30394d}
+.calendar{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}
+.dow,.day{text-align:center;padding:8px 2px;border-radius:10px;font-size:12px}
+.dow{font-weight:800;color:#8d96a9}.day{background:#f8f9fb;min-height:34px}
+.day.muted{opacity:.28}.day.pay{background:#5869df;color:#fff;font-weight:900;box-shadow:0 4px 10px rgba(88,105,223,.22)}
+.day.holiday{outline:1px solid #d9deea}.calLegend{font-size:11px;color:#929aab;margin-top:8px}
+.hidden{display:none!important}
+.progress{height:12px;background:#eceff4;border-radius:999px;overflow:hidden;margin:10px 0 6px}
+.progress>div{height:100%;background:linear-gradient(90deg,#5869df,#7d8bf0);width:0%;border-radius:999px}
+.savingsBig{font-size:30px;font-weight:900;margin:4px 0;letter-spacing:-1px}
+.actionGrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+#paySettingsCard>small{display:block;margin-bottom:8px}
+#useSalary,#useCalendar,#useBonus,#useIncome,#useSavings{width:auto}
+.onboarding{
+  position:fixed;inset:0;background:linear-gradient(160deg,#eef2ff,#f7f8fc 45%,#eef1f8);
+  z-index:9999;overflow:auto;padding:28px 16px
+}
+.onboardingBox{
+  max-width:580px;margin:0 auto;background:#fff;border:1px solid #e6e9f0;border-radius:28px;
+  padding:24px;box-shadow:0 22px 60px rgba(42,52,85,.14)
+}
+.onboarding h1{font-size:32px;letter-spacing:-1px}
+.step{display:inline-block;background:#eef0ff;color:#5869df;border-radius:99px;padding:5px 9px;font-weight:900;font-size:11px;margin-bottom:14px}
+.featureChoice{border:1px solid #e9ecf2;border-radius:16px;padding:12px 13px;margin:8px 0;background:#fafbfc}
+.onboardingActions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:18px}
+@media(max-width:480px){
+ .wrap{padding:20px 13px 76px}.card{border-radius:19px;padding:16px}.amount{font-size:43px}
+ .two,.actionGrid,.onboardingActions{grid-template-columns:1fr}.onboarding{padding:18px 12px}.onboardingBox{padding:19px;border-radius:23px}
+}
+</style>
+</head>
+<body>
+<div id="onboarding" class="onboarding hidden">
+  <div class="onboardingBox">
+    <div class="step">初期設定</div>
+    <h1>あと何円？</h1>
+    <div class="sub">最初に使いたい機能だけ選んでください。あとからいつでも変更できます。</div>
+
+    <h2>基本設定</h2>
+    <label>毎月の給料日</label>
+    <select id="onboardPayday"></select>
+
+    <label>今の残金</label>
+    <input id="onboardBalance" type="text" inputmode="numeric" placeholder="例：38,000">
+    <div id="onboardBalancePreview" class="money-preview"></div>
+
+    <h2 style="margin-top:24px">追加機能</h2>
+    <div class="featureChoice toggleRow">
+      <div><b>給料の自動反映</b><br><small>給料日に残金へ自動反映</small></div>
+      <label class="switch"><input id="onboardSalary" type="checkbox"><span class="slider"></span></label>
+    </div>
+    <div id="onboardSalaryFields" class="hidden">
+      <label>毎月の給料額</label>
+      <input id="onboardSalaryAmount" type="text" inputmode="numeric" placeholder="例：250,000">
+      <div id="onboardSalaryAmountPreview" class="money-preview"></div>
+      <label>給料日の処理</label>
+      <select id="onboardSalaryMode">
+        <option value="add">今の残金に給料を加算</option>
+        <option value="reset">残金を給料額にリセット</option>
+      </select>
+    </div>
+
+    <div class="featureChoice toggleRow">
+      <div><b>カレンダー</b><br><small>土日祝の前倒しも見える</small></div>
+      <label class="switch"><input id="onboardCalendar" type="checkbox" checked><span class="slider"></span></label>
+    </div>
+    <div class="featureChoice toggleRow">
+      <div><b>ボーナス</b><br><small>賞与予定日を管理</small></div>
+      <label class="switch"><input id="onboardBonus" type="checkbox"><span class="slider"></span></label>
+    </div>
+    <div class="featureChoice toggleRow">
+      <div><b>臨時収入</b><br><small>給料以外の入金を追加</small></div>
+      <label class="switch"><input id="onboardIncome" type="checkbox"><span class="slider"></span></label>
+    </div>
+    <div class="featureChoice toggleRow">
+      <div><b>貯金</b><br><small>目標額・達成率を管理</small></div>
+      <label class="switch"><input id="onboardSavings" type="checkbox"><span class="slider"></span></label>
+    </div>
+
+    <div class="onboardingActions">
+      <button id="finishOnboarding">この設定ではじめる</button>
+      <button id="simpleOnboarding" class="secondary">シンプル設定ではじめる</button>
+    </div>
+  </div>
+</div>
+<div class="wrap">
+<h1>あと何円？</h1><div class="sub">家計簿は続かない。でも今日いくら使えるかは知りたい。</div>
+
+<div class="card">
+<h2>表示する機能</h2>
+<small>必要な機能だけ表示できます。いつでも変更できます。</small>
+
+<div class="toggleRow">
+<div><b>給料の自動反映</b><br><small>給料額・自動加算／リセット</small></div>
+<label class="switch"><input id="useSalary" type="checkbox"><span class="slider"></span></label>
+</div>
+
+<div class="toggleRow">
+<div><b>カレンダー</b><br><small>実際の振込予定日を表示</small></div>
+<label class="switch"><input id="useCalendar" type="checkbox"><span class="slider"></span></label>
+</div>
+
+<div class="toggleRow">
+<div><b>ボーナス</b><br><small>賞与予定日を管理</small></div>
+<label class="switch"><input id="useBonus" type="checkbox"><span class="slider"></span></label>
+</div>
+
+<div class="toggleRow">
+<div><b>臨時収入</b><br><small>給料以外の入金を追加</small></div>
+<label class="switch"><input id="useIncome" type="checkbox"><span class="slider"></span></label>
+</div>
+
+<div class="toggleRow">
+<div><b>貯金</b><br><small>目標額・達成率を管理</small></div>
+<label class="switch"><input id="useSavings" type="checkbox"><span class="slider"></span></label>
+</div>
+</div>
+
+<div class="card hero"><div class="label">今日の予算</div><div id="todayBudget" class="amount">¥0</div><div id="statusText"></div></div>
+
+<div class="card" id="paySettingsCard">
+<h2>給料日の設定</h2>
+<small>毎月の「○日払い」だけ設定。土日・祝日・銀行休業日は前の営業日に自動調整します。</small>
+<label>毎月の給料日</label>
+<select id="paydayDay"></select>
+
+<div id="salaryOptions"><label>毎月の給料額</label>
+<input id="salaryAmount" type="text" inputmode="numeric" placeholder="例：250,000">
+<div id="salaryAmountPreview" class="money-preview"></div>
+
+<label>給料日に残金をどうする？</label>
+<select id="salaryMode">
+<option value="add">今の残金に給料を加算</option>
+<option value="reset">残金を給料額にリセット</option>
+</select>
+
+<label>給料日に確定支払いをどうする？</label>
+<select id="paymentRollover">
+<option value="clear">先月分をリセットする</option>
+<option value="keep">そのまま引き継ぐ</option>
+</select></div>
+<div id="payInfo" class="info"></div>
+
+<div id="calendarOptions"><div class="calendarHead">
+<button id="prevMonth">‹</button><strong id="calTitle"></strong><button id="nextMonth">›</button>
+</div>
+<div class="calendar" id="calendar"></div>
+<div class="calLegend">■ 黒い日 = 実際の振込予定日　／　枠あり = 土日・祝日などの休業日</div></div>
+
+<input id="bonusEnabled" type="checkbox" class="hidden">
+<div id="bonusFields">
+<div class="two">
+<div><label>ボーナス① 月</label><select id="bonusMonth1"></select></div>
+<div><label>ボーナス① 日</label><select id="bonusDay1"></select></div>
+</div>
+<div class="two">
+<div><label>ボーナス② 月（任意）</label><select id="bonusMonth2"></select></div>
+<div><label>ボーナス② 日（任意）</label><select id="bonusDay2"></select></div>
+</div>
+<div id="bonusInfo" class="info"></div>
+</div>
+<div style="height:12px"></div><button class="full" id="savePaySettings">給料・給料日設定を保存</button>
+</div>
+
+<div class="card">
+<h2>今の残金</h2>
+<small>ここには「今この瞬間に使える残金」を入力してください。履歴があっても二重計算しません。</small>
+<input id="balance" type="text" inputmode="numeric" placeholder="例：38,000">
+<div id="balancePreview" class="money-preview"></div>
+<div style="height:12px"></div><button class="full" id="saveBalance">残金を保存して計算</button>
+</div>
+
+<div class="card" id="incomeCard">
+<h2>臨時収入</h2>
+<small>返金・副収入・お祝いなど、給料以外で入ったお金をそのまま残金に追加できます。</small>
+<label>金額</label>
+<div class="addrow"><input id="incomeAmount" type="text" inputmode="numeric" placeholder="例：10,000"><button id="addIncome">追加</button></div>
+<div id="incomeAmountPreview" class="money-preview"></div>
+<input id="incomeName" type="text" placeholder="メモ（任意）：臨時収入" style="margin-top:8px">
+</div>
+
+<div class="card">
+<h2>給料日までの確定支払い</h2>
+<small>数字を入れて「追加」を押すだけ。合計は自動計算します。</small>
+<div style="height:10px"></div>
+<div class="addrow"><input id="paymentAmount" type="text" inputmode="numeric" placeholder="例：8,000"><button id="addPayment">追加</button></div>
+<div id="paymentAmountPreview" class="money-preview"></div>
+<ul id="payments" class="payments"></ul>
+<div class="total"><span>確定支払い合計</span><span id="fixedTotal">¥0</span></div>
+</div>
+
+<div class="card" id="savingsCard">
+<h2>貯金</h2>
+<div class="savingsBig" id="savingsView">¥0</div>
+<small id="savingsGoalText">目標金額を設定できます。</small>
+<div class="progress"><div id="savingsProgress"></div></div>
+<div id="savingsPercent"><small>0%</small></div>
+
+<label>目標貯金額</label>
+<input id="savingsGoal" type="text" inputmode="numeric" placeholder="例：500,000">
+<div id="savingsGoalPreview" class="money-preview"></div>
+<button class="full secondary" id="saveSavingsGoal">目標を保存</button>
+
+<label>貯金に移す金額</label>
+<div class="addrow"><input id="saveAmount" type="text" inputmode="numeric" placeholder="例：5,000"><button id="addSavings">貯金</button></div>
+<div id="saveAmountPreview" class="money-preview"></div>
+
+<div class="actionGrid" style="margin-top:10px">
+<button class="secondary" id="withdrawSavings">貯金から戻す</button>
+<button class="secondary" id="clearSavings">貯金だけリセット</button>
+</div>
+</div>
+
+<div class="card"><div class="meta">
+<div class="pill"><small>現在の残金</small><b id="balanceView">¥0</b></div>
+<div class="pill"><small>次の振込予定</small><b id="daysView">-</b></div>
+<div class="pill"><small>確定支払い</small><b id="fixedView">¥0</b></div>
+<div class="pill"><small>自由に使える総額</small><b id="freeView">¥0</b></div>
+</div></div>
+
+<div class="card">
+<h2>使った金額を記録</h2>
+<div class="addrow"><input id="expenseAmount" type="text" inputmode="numeric" placeholder="例：780"><button id="addExpense">追加</button></div>
+<div id="expenseAmountPreview" class="money-preview"></div>
+<input id="expenseName" type="text" placeholder="メモ（任意）：コンビニ" style="margin-top:8px">
+</div>
+
+<div class="card"><h2>履歴</h2><ul id="history" class="history"></ul>
+<div style="height:10px"></div><button class="full secondary" id="resetAll">全部リセット</button></div>
+</div>
+
+<script>
+const $=id=>document.getElementById(id);
+const parseMoney=v=>Number(String(v||"").replace(/[^\d]/g,""))||0;
+const money=n=>"¥"+Math.max(0,Math.round(Number(n)||0)).toLocaleString("ja-JP");
+const pad=n=>String(n).padStart(2,"0");
+const ymd=d=>`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+const fmtDate=d=>`${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日（${"日月火水木金土"[d.getDay()]}）`;
+
+let old=JSON.parse(localStorage.getItem("atoNanenState")||"{}");
+let state={
+ onboardingDone:Boolean(old.onboardingDone),
+ features:Object.assign({salary:false,calendar:true,bonus:false,income:false,savings:false}, old.features||{}),
+ balance:Number(old.balance||0),
+ paydayDay:Number(old.paydayDay||25),
+ salaryAmount:Number(old.salaryAmount||0),
+ salaryMode:old.salaryMode||"add",
+ paymentRollover:old.paymentRollover||"clear",
+ lastSalaryApplied:old.lastSalaryApplied||"",
+ salaryAutoStart:old.salaryAutoStart||"",
+ cycleStart:old.cycleStart||"",
+ payments:Array.isArray(old.payments)?old.payments:(old.fixed?[Number(old.fixed)]:[]),
+ expenses:Array.isArray(old.expenses)?old.expenses:[],
+ incomes:Array.isArray(old.incomes)?old.incomes:[],
+ savings:Number(old.savings||0),
+ savingsGoal:Number(old.savingsGoal||0),
+ savingsMoves:Array.isArray(old.savingsMoves)?old.savingsMoves:[],
+ events:Array.isArray(old.events)?old.events:[],
+ bonusEnabled:Boolean(old.bonusEnabled),
+ bonus1:old.bonus1||{month:6,day:10},
+ bonus2:old.bonus2||{month:12,day:10}
+};
+let calCursor=new Date();
+
+function save(){localStorage.setItem("atoNanenState",JSON.stringify(state))}
+function nthWeekday(year,month,weekday,n){
+ let d=new Date(year,month-1,1),shift=(7+weekday-d.getDay())%7;
+ return new Date(year,month-1,1+shift+7*(n-1));
+}
+function equinoxDay(year,type){
+ return type==="spring" ? Math.floor(20.8431+0.242194*(year-1980)-Math.floor((year-1980)/4))
+                        : Math.floor(23.2488+0.242194*(year-1980)-Math.floor((year-1980)/4));
+}
+function baseHolidaySet(year){
+ let s=new Set(), add=(m,d)=>s.add(`${year}-${pad(m)}-${pad(d)}`);
+ add(1,1); add(1,nthWeekday(year,1,1,2).getDate());
+ add(2,11); add(2,23); add(3,equinoxDay(year,"spring"));
+ add(4,29); add(5,3); add(5,4); add(5,5);
+ add(7,nthWeekday(year,7,1,3).getDate()); add(8,11);
+ add(9,nthWeekday(year,9,1,3).getDate()); add(9,equinoxDay(year,"autumn"));
+ add(10,nthWeekday(year,10,1,2).getDate()); add(11,3); add(11,23);
+ return s;
+}
+function holidaySet(year){
+ let s=baseHolidaySet(year);
+ for(let m=1;m<=12;m++) for(let d=2;d<=30;d++){
+   let cur=new Date(year,m-1,d),prev=new Date(year,m-1,d-1),next=new Date(year,m-1,d+1);
+   if(!s.has(ymd(cur))&&s.has(ymd(prev))&&s.has(ymd(next)))s.add(ymd(cur));
+ }
+ [...s].sort().forEach(k=>{
+   let [y,m,d]=k.split("-").map(Number),dt=new Date(y,m-1,d);
+   if(dt.getDay()===0){let x=new Date(dt);do{x.setDate(x.getDate()+1)}while(s.has(ymd(x)));s.add(ymd(x))}
+ });
+ return s;
+}
+function isBankClosed(d){
+ let dow=d.getDay(),m=d.getMonth()+1,day=d.getDate();
+ if(dow===0||dow===6)return true;
+ if((m===12&&day===31)||(m===1&&day<=3))return true;
+ return holidaySet(d.getFullYear()).has(ymd(d));
+}
+function adjustedPayDate(year,month,day){
+ let last=new Date(year,month,0).getDate(),d=new Date(year,month-1,Math.min(day,last));
+ while(isBankClosed(d))d.setDate(d.getDate()-1);
+ return d;
+}
+function nextSalaryDate(){
+ let n=new Date(),today=new Date(n.getFullYear(),n.getMonth(),n.getDate());
+ let d=adjustedPayDate(today.getFullYear(),today.getMonth()+1,state.paydayDay);
+ if(d<today)d=adjustedPayDate(today.getFullYear(),today.getMonth()+2,state.paydayDay);
+ return d;
+}
+function daysUntil(d){
+ let n=new Date(),today=new Date(n.getFullYear(),n.getMonth(),n.getDate());
+ return Math.max(0,Math.ceil((d-today)/86400000));
+}
+function fillSelects(){
+ let p=$("paydayDay");p.innerHTML="";
+ for(let i=1;i<=31;i++){let o=document.createElement("option");o.value=i;o.textContent=i+"日";p.appendChild(o)}
+ p.value=state.paydayDay;
+ ["bonusMonth1","bonusMonth2"].forEach(id=>{
+   let el=$(id);el.innerHTML='<option value="">なし</option>';
+   for(let i=1;i<=12;i++){let o=document.createElement("option");o.value=i;o.textContent=i+"月";el.appendChild(o)}
+ });
+ ["bonusDay1","bonusDay2"].forEach(id=>{
+   let el=$(id);el.innerHTML='<option value="">なし</option>';
+   for(let i=1;i<=31;i++){let o=document.createElement("option");o.value=i;o.textContent=i+"日";el.appendChild(o)}
+ });
+ $("bonusMonth1").value=state.bonus1.month||"";$("bonusDay1").value=state.bonus1.day||"";
+ $("bonusMonth2").value=state.bonus2.month||"";$("bonusDay2").value=state.bonus2.day||"";
+ $("bonusEnabled").checked=state.features.bonus; toggleBonus();
+}
+function formatInput(el,preview){
+ const n=parseMoney(el.value);el.value=n?n.toLocaleString("ja-JP"):"";$(preview).textContent=n?money(n):"";
+}
+[["balance","balancePreview"],["salaryAmount","salaryAmountPreview"],["paymentAmount","paymentAmountPreview"],["expenseAmount","expenseAmountPreview"],
+ ["incomeAmount","incomeAmountPreview"],["savingsGoal","savingsGoalPreview"],["saveAmount","saveAmountPreview"]]
+.forEach(([id,pr])=>$(id).addEventListener("input",()=>formatInput($(id),pr)));
+
+
+function previousOrCurrentSalaryDate(){
+ let n=new Date(),today=new Date(n.getFullYear(),n.getMonth(),n.getDate());
+ let d=adjustedPayDate(today.getFullYear(),today.getMonth()+1,state.paydayDay);
+ if(d>today)d=adjustedPayDate(today.getFullYear(),today.getMonth(),state.paydayDay);
+ return d;
+}
+
+function isActiveTransaction(e){
+ if(!state.cycleStart)return true;
+ return new Date(e.time).getTime()>=new Date(state.cycleStart).getTime();
+}
+function activeSum(arr){
+ return arr.filter(isActiveTransaction).reduce((a,e)=>a+Number(e.amount||0),0);
+}
+
+function applySalaryIfDue(){
+ if(!state.features.salary || !state.salaryAmount)return false;
+ let due=previousOrCurrentSalaryDate();
+ let key=ymd(due);
+ let today=new Date(),today0=new Date(today.getFullYear(),today.getMonth(),today.getDate());
+ if(due>today0 || state.lastSalaryApplied===key)return false;
+ if(state.salaryAutoStart && due<new Date(state.salaryAutoStart+"T00:00:00"))return false;
+
+ let nowIso=new Date().toISOString();
+ if(state.salaryMode==="reset"){
+   // Keep old history visible, but begin a new calculation cycle from the salary amount.
+   state.balance=state.salaryAmount;
+   state.cycleStart=nowIso;
+   state.events.push({name:"給料（残金リセット）",amount:state.salaryAmount,time:nowIso});
+ }else{
+   // Add mode records salary once as active income.
+   state.incomes.push({amount:state.salaryAmount,name:"給料",time:nowIso});
+ }
+ if(state.paymentRollover==="clear"){
+   state.payments=[];
+ }
+ state.lastSalaryApplied=key;
+ save();
+ return true;
+}
+
+function updatePayInfo(){
+ state.paydayDay=Number($("paydayDay").value||25);
+ let d=nextSalaryDate(),days=daysUntil(d);
+ let extra=state.features.salary
+   ? `<br>給料 <strong>${money(state.salaryAmount)}</strong><br><small>${state.salaryMode==="reset"?"給料日に残金を給料額へリセット":"給料日に現在残金へ自動加算"} ／ ${state.paymentRollover==="clear"?"確定支払いはリセット":"確定支払いは引き継ぎ"}</small>`
+   : "";
+ $("payInfo").innerHTML=`毎月 <strong>${state.paydayDay}日払い</strong><br>次回の振込予定：<strong class="good">${fmtDate(d)}</strong><br><small>${days===0?"今日が振込予定日です":`あと${days}日`}</small>${extra}`;
+ renderCalendar(); updateBonusInfo();
+}
+function toggleBonus(){
+ $("bonusFields").classList.toggle("hidden",!state.features.bonus);
+ $("bonusEnabled").checked=state.features.bonus;
+ if(state.features.bonus)updateBonusInfo();
+}
+function updateBonusInfo(){
+ if(!state.features.bonus)return;
+ let now=new Date(),year=now.getFullYear(),dates=[];
+ [[Number($("bonusMonth1").value),Number($("bonusDay1").value)],
+  [Number($("bonusMonth2").value),Number($("bonusDay2").value)]].forEach(([m,d])=>{
+   if(!m||!d)return;let x=adjustedPayDate(year,m,d);
+   if(x<new Date(now.getFullYear(),now.getMonth(),now.getDate()))x=adjustedPayDate(year+1,m,d);dates.push(x);
+ });
+ dates.sort((a,b)=>a-b);
+ $("bonusInfo").innerHTML=dates.length?dates.map((d,i)=>`ボーナス${i+1}予定：<strong>${fmtDate(d)}</strong>`).join("<br>"):"<small>ボーナス予定月・日を設定してください</small>";
+}
+function renderCalendar(){
+ let y=calCursor.getFullYear(),m=calCursor.getMonth()+1;$("calTitle").textContent=`${y}年 ${m}月`;
+ let c=$("calendar");c.innerHTML="";
+ ["日","月","火","水","木","金","土"].forEach(x=>{let e=document.createElement("div");e.className="dow";e.textContent=x;c.appendChild(e)});
+ let first=new Date(y,m-1,1),start=first.getDay(),last=new Date(y,m,0).getDate(),pay=adjustedPayDate(y,m,state.paydayDay),prevLast=new Date(y,m-1,0).getDate();
+ for(let i=0;i<42;i++){
+   let day=i-start+1,dt,muted=false,label=day;
+   if(day<1){dt=new Date(y,m-2,prevLast+day);label=dt.getDate();muted=true}
+   else if(day>last){dt=new Date(y,m,day-last);label=dt.getDate();muted=true}
+   else dt=new Date(y,m-1,day);
+   let e=document.createElement("div");e.className="day"+(muted?" muted":"");
+   if(!muted&&isBankClosed(dt))e.classList.add("holiday");
+   if(!muted&&ymd(dt)===ymd(pay))e.classList.add("pay");
+   e.textContent=label;c.appendChild(e);
+ }
+}
+function renderSavings(){
+ $("savingsView").textContent=money(state.savings);
+ let goal=Number(state.savingsGoal||0),pct=goal?Math.min(100,(state.savings/goal)*100):0;
+ $("savingsProgress").style.width=pct+"%";
+ $("savingsPercent").innerHTML=`<small>${goal?Math.round(pct)+"%":"目標未設定"}</small>`;
+ $("savingsGoalText").textContent=goal?`目標 ${money(goal)} ／ あと ${money(Math.max(0,goal-state.savings))}`:"目標金額を設定できます。";
+}
+function recalc(){
+ let fixed=state.payments.reduce((a,b)=>a+Number(b||0),0);
+ let spent=activeSum(state.expenses);
+ let income=activeSum(state.incomes);
+ let savedOut=activeSum(state.savingsMoves);
+ let current=Math.max(0,state.balance+income-spent-savedOut),free=Math.max(0,current-fixed),pay=nextSalaryDate(),days=daysUntil(pay);
+ let daily=free/Math.max(1,days||1);
+ $("todayBudget").textContent=money(daily);$("balanceView").textContent=money(current);
+ $("fixedView").textContent=money(fixed);$("fixedTotal").textContent=money(fixed);$("freeView").textContent=money(free);
+ $("daysView").textContent=days===0?"今日":days+"日";$("statusText").innerHTML=`<small>次の振込予定 ${fmtDate(pay)} まで</small>`;
+ let p=$("payments");p.innerHTML="";
+ state.payments.forEach((v,i)=>{let li=document.createElement("li");li.innerHTML="<b>"+money(v)+"</b><button class='dangerbtn' data-i='"+i+"'>削除</button>";p.appendChild(li)});
+ p.querySelectorAll("button").forEach(b=>b.onclick=()=>{state.payments.splice(Number(b.dataset.i),1);save();recalc()});
+ let items=[];
+ state.expenses.forEach(e=>items.push({time:e.time,name:e.name||"支出",amount:-Number(e.amount||0)}));
+ state.incomes.forEach(e=>items.push({time:e.time,name:e.name||"臨時収入",amount:Number(e.amount||0)}));
+ state.savingsMoves.forEach(e=>items.push({time:e.time,name:e.name||"貯金",amount:-Number(e.amount||0)}));
+ state.events.forEach(e=>items.push({time:e.time,name:e.name||"記録",amount:Number(e.amount||0),neutral:true}));
+ items.sort((a,b)=>new Date(b.time)-new Date(a.time));
+ let h=$("history");h.innerHTML="";
+ if(!items.length)h.innerHTML="<li><small>まだ履歴はありません</small></li>";
+ items.forEach(e=>{let li=document.createElement("li");let sign=e.neutral?"":(e.amount>=0?"+":"-");li.innerHTML="<span>"+e.name+"<br><small>"+new Date(e.time).toLocaleString("ja-JP")+"</small></span><b>"+sign+money(Math.abs(e.amount))+"</b>";h.appendChild(li)});
+ renderSavings();
+}
+
+
+function fillOnboarding(){
+ let p=$("onboardPayday"); p.innerHTML="";
+ for(let i=1;i<=31;i++){let o=document.createElement("option");o.value=i;o.textContent=i+"日";p.appendChild(o)}
+ p.value=state.paydayDay||25;
+ $("onboardBalance").value=state.balance?state.balance.toLocaleString("ja-JP"):"";
+ $("onboardSalaryAmount").value=state.salaryAmount?state.salaryAmount.toLocaleString("ja-JP"):"";
+ $("onboardSalaryMode").value=state.salaryMode||"add";
+ $("onboardSalary").checked=state.features.salary;
+ $("onboardCalendar").checked=state.features.calendar;
+ $("onboardBonus").checked=state.features.bonus;
+ $("onboardIncome").checked=state.features.income;
+ $("onboardSavings").checked=state.features.savings;
+ toggleOnboardSalary();
+}
+function toggleOnboardSalary(){
+ $("onboardSalaryFields").classList.toggle("hidden",!$("onboardSalary").checked);
+}
+$("onboardSalary").onchange=toggleOnboardSalary;
+$("onboardBalance").addEventListener("input",()=>formatInput($("onboardBalance"),"onboardBalancePreview"));
+$("onboardSalaryAmount").addEventListener("input",()=>formatInput($("onboardSalaryAmount"),"onboardSalaryAmountPreview"));
+
+function finishInitialSetup(simple=false){
+ state.paydayDay=Number($("onboardPayday").value||25);
+ state.balance=parseMoney($("onboardBalance").value);
+ if(simple){
+   state.features={salary:false,calendar:false,bonus:false,income:false,savings:false};
+ }else{
+   state.features={
+     salary:$("onboardSalary").checked,
+     calendar:$("onboardCalendar").checked,
+     bonus:$("onboardBonus").checked,
+     income:$("onboardIncome").checked,
+     savings:$("onboardSavings").checked
+   };
+   if(state.features.salary){
+     state.salaryAmount=parseMoney($("onboardSalaryAmount").value);
+     state.salaryMode=$("onboardSalaryMode").value||"add";
+     let now=new Date();
+     state.salaryAutoStart=ymd(now);
+     state.lastSalaryApplied=ymd(previousOrCurrentSalaryDate());
+   }
+ }
+ state.bonusEnabled=state.features.bonus;
+ state.onboardingDone=true;
+ save();
+ $("onboarding").classList.add("hidden");
+
+ $("paydayDay").value=state.paydayDay;
+ $("balance").value=state.balance?state.balance.toLocaleString("ja-JP"):"";
+ $("salaryAmount").value=state.salaryAmount?state.salaryAmount.toLocaleString("ja-JP"):"";
+ $("salaryMode").value=state.salaryMode||"add";
+ applyFeatureVisibility();
+ updatePayInfo();
+ recalc();
+}
+$("finishOnboarding").onclick=()=>finishInitialSetup(false);
+$("simpleOnboarding").onclick=()=>finishInitialSetup(true);
+
+function applyFeatureVisibility(){
+ $("salaryOptions").classList.toggle("hidden",!state.features.salary);
+ $("calendarOptions").classList.toggle("hidden",!state.features.calendar);
+ $("incomeCard").classList.toggle("hidden",!state.features.income);
+ $("savingsCard").classList.toggle("hidden",!state.features.savings);
+ toggleBonus();
+
+ $("useSalary").checked=state.features.salary;
+ $("useCalendar").checked=state.features.calendar;
+ $("useBonus").checked=state.features.bonus;
+ $("useIncome").checked=state.features.income;
+ $("useSavings").checked=state.features.savings;
+}
+function bindFeatureToggle(id,key){
+ $(id).onchange=()=>{
+   let was=state.features[key];
+   state.features[key]=$(id).checked;
+   if(key==="salary" && !was && state.features.salary){
+     let now=new Date();
+     state.salaryAutoStart=ymd(now);
+     state.lastSalaryApplied=ymd(previousOrCurrentSalaryDate());
+   }
+   save();
+   applyFeatureVisibility();
+   updatePayInfo();
+   recalc();
+ };
+}
+bindFeatureToggle("useSalary","salary");
+bindFeatureToggle("useCalendar","calendar");
+bindFeatureToggle("useBonus","bonus");
+bindFeatureToggle("useIncome","income");
+bindFeatureToggle("useSavings","savings");
+
+$("paydayDay").onchange=updatePayInfo;
+["bonusMonth1","bonusDay1","bonusMonth2","bonusDay2"].forEach(id=>$(id).onchange=updateBonusInfo);
+$("prevMonth").onclick=()=>{calCursor.setMonth(calCursor.getMonth()-1);renderCalendar()};
+$("nextMonth").onclick=()=>{calCursor.setMonth(calCursor.getMonth()+1);renderCalendar()};
+$("savePaySettings").onclick=()=>{
+ state.paydayDay=Number($("paydayDay").value||25);
+ state.salaryAmount=parseMoney($("salaryAmount").value);
+ state.salaryMode=$("salaryMode").value||"add";
+ state.paymentRollover=$("paymentRollover").value||"clear";
+ if(state.features.salary && !state.salaryAutoStart){
+   let now=new Date();
+   state.salaryAutoStart=ymd(now);
+   state.lastSalaryApplied=ymd(previousOrCurrentSalaryDate());
+ }
+ state.bonusEnabled=state.features.bonus;
+ state.bonus1={month:Number($("bonusMonth1").value||0),day:Number($("bonusDay1").value||0)};
+ state.bonus2={month:Number($("bonusMonth2").value||0),day:Number($("bonusDay2").value||0)};
+ save();updatePayInfo();recalc();
+};
+$("saveBalance").onclick=()=>{
+ let desired=parseMoney($("balance").value);
+ let spent=activeSum(state.expenses);
+ let income=activeSum(state.incomes);
+ let moved=activeSum(state.savingsMoves);
+ state.balance=Math.max(0,desired-income+spent+moved);
+ save();recalc();
+ $("balance").value=desired?desired.toLocaleString("ja-JP"):"";
+};
+$("addIncome").onclick=()=>{
+ let n=parseMoney($("incomeAmount").value);if(!n)return;
+ state.incomes.push({amount:n,name:$("incomeName").value.trim()||"臨時収入",time:new Date().toISOString()});
+ $("incomeAmount").value="";$("incomeAmountPreview").textContent="";$("incomeName").value="";save();recalc()
+};
+$("addPayment").onclick=()=>{let n=parseMoney($("paymentAmount").value);if(!n)return;state.payments.push(n);$("paymentAmount").value="";$("paymentAmountPreview").textContent="";save();recalc();$("paymentAmount").focus()};
+$("paymentAmount").addEventListener("keydown",e=>{if(e.key==="Enter")$("addPayment").click()});
+$("addExpense").onclick=()=>{let n=parseMoney($("expenseAmount").value);if(!n)return;state.expenses.push({amount:n,name:$("expenseName").value.trim()||"支出",time:new Date().toISOString()});$("expenseAmount").value="";$("expenseAmountPreview").textContent="";$("expenseName").value="";save();recalc()};
+$("saveSavingsGoal").onclick=()=>{state.savingsGoal=parseMoney($("savingsGoal").value);save();renderSavings()};
+$("addSavings").onclick=()=>{
+ let n=parseMoney($("saveAmount").value);if(!n)return;
+ let fixed=state.payments.reduce((a,b)=>a+Number(b||0),0),spent=activeSum(state.expenses),income=activeSum(state.incomes),moved=activeSum(state.savingsMoves);
+ let available=Math.max(0,state.balance+income-spent-moved);
+ if(n>available)return alert("残金より多い金額は貯金に移せません。");
+ state.savings+=n;state.savingsMoves.push({amount:n,name:"貯金へ移動",time:new Date().toISOString()});
+ $("saveAmount").value="";$("saveAmountPreview").textContent="";save();recalc()
+};
+$("withdrawSavings").onclick=()=>{
+ let v=prompt("貯金から戻す金額を入力してください");let n=parseMoney(v);if(!n)return;
+ if(n>state.savings)return alert("貯金額を超えています。");
+ state.savings-=n;state.incomes.push({amount:n,name:"貯金から戻す",time:new Date().toISOString()});save();recalc()
+};
+$("clearSavings").onclick=()=>{if(confirm("貯金額だけ0円にしますか？目標額は残します。")){state.savings=0;save();renderSavings()}};
+$("resetAll").onclick=()=>{if(confirm("保存したデータを全部消しますか？")){localStorage.removeItem("atoNanenState");location.reload()}};
+
+fillSelects();
+fillOnboarding();
+$("balance").value=state.balance?state.balance.toLocaleString("ja-JP"):"";
+$("salaryAmount").value=state.salaryAmount?state.salaryAmount.toLocaleString("ja-JP"):"";
+$("salaryMode").value=state.salaryMode||"add";
+$("paymentRollover").value=state.paymentRollover||"clear";
+$("savingsGoal").value=state.savingsGoal?state.savingsGoal.toLocaleString("ja-JP"):"";
+applyFeatureVisibility();
+if(!state.onboardingDone){
+ $("onboarding").classList.remove("hidden");
+}else{
+ applySalaryIfDue();
+ $("balance").value=state.balance?state.balance.toLocaleString("ja-JP"):"";
+}
+updatePayInfo();recalc();
+if("serviceWorker"in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js"));
+</script></body></html>
