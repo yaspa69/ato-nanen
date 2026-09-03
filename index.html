@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#111827">
 <link rel="manifest" href="manifest.webmanifest">
-<title>あと何円？ v1.2</title>
+<title>あと何円？ v1.4</title>
 <style>
 :root{
   font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
@@ -108,6 +108,26 @@ button:active{transform:scale(.98)}
 .featureSettings .settingsBody{padding:0 18px 16px;border-top:1px solid #edf0f5}
 .featureSettings .settingsBody>small{display:block;padding:12px 0 3px}
 
+
+.innerCard{background:#f9fafc;border:1px solid #e8ebf1;border-radius:16px;padding:15px;margin:12px 0}
+.featureSettings{padding:0;overflow:hidden}
+.featureSettings>summary{
+  list-style:none;cursor:pointer;padding:17px 18px;font-weight:900;color:#596278;
+  display:flex;align-items:center;justify-content:space-between
+}
+.featureSettings>summary::-webkit-details-marker{display:none}
+.featureSettings>summary:after{content:"＋";font-size:20px;color:#8a93a5}
+.featureSettings[open]>summary:after{content:"−"}
+.featureSettings>.settingsBody{padding:0 18px 18px;border-top:1px solid #edf0f5}
+.subSettings{margin-top:12px;border:1px solid #e7eaf1;border-radius:14px;background:#fafbfc;overflow:hidden}
+.subSettings>summary{cursor:pointer;font-weight:850;padding:13px 14px;list-style:none}
+.subSettings>summary::-webkit-details-marker{display:none}
+.subSettings>summary:after{content:"＋";float:right;color:#8b94a6}
+.subSettings[open]>summary:after{content:"−"}
+.subSettingsBody{padding:0 12px 12px;border-top:1px solid #eceff4}
+.modeInfo{margin-bottom:12px}
+.simpleHidden{display:none!important}
+
 </style>
 </head>
 <body>
@@ -172,7 +192,85 @@ button:active{transform:scale(.98)}
 
 
 
-<div class="card" id="paySettingsCard">
+
+
+<div class="card">
+<h2>今の残金</h2>
+<small>ここには「今この瞬間に使える残金」を入力してください。履歴があっても二重計算しません。</small>
+<input id="balance" type="text" inputmode="numeric" placeholder="例：38,000">
+<div id="balancePreview" class="money-preview"></div>
+<div style="height:12px"></div><button class="full" id="saveBalance">残金を保存して計算</button>
+</div>
+<div class="card">
+<h2>使ったお金</h2><small>金額だけでもすぐ記録できます。</small>
+<div class="addrow"><input id="expenseAmount" type="text" inputmode="numeric" autocomplete="off" placeholder="例：780"><button id="addExpense">追加</button></div>
+<div id="expenseAmountPreview" class="money-preview"></div>
+<input id="expenseName" type="text" autocomplete="off" placeholder="メモ（任意）：コンビニ" style="margin-top:8px">
+</div>
+
+<div class="card" id="incomeCard">
+<h2>臨時収入</h2>
+<small>返金・副収入・お祝いなど、給料以外で入ったお金をそのまま残金に追加できます。</small>
+<label>金額</label>
+<div class="addrow"><input id="incomeAmount" type="text" inputmode="numeric" placeholder="例：10,000"><button id="addIncome">追加</button></div>
+<div id="incomeAmountPreview" class="money-preview"></div>
+<input id="incomeName" type="text" placeholder="メモ（任意）：臨時収入" style="margin-top:8px">
+</div>
+
+
+
+<div class="card" id="savingsCard">
+<h2>貯金</h2>
+<div class="savingsBig" id="savingsView">¥0</div>
+<small id="savingsGoalText">目標金額を設定できます。</small>
+<div class="progress"><div id="savingsProgress"></div></div>
+<div id="savingsPercent"><small>0%</small></div>
+
+<label>目標貯金額</label>
+<input id="savingsGoal" type="text" inputmode="numeric" placeholder="例：500,000">
+<div id="savingsGoalPreview" class="money-preview"></div>
+<button class="full secondary" id="saveSavingsGoal">目標を保存</button>
+
+<label>貯金に移す金額</label>
+<div class="addrow"><input id="saveAmount" type="text" inputmode="numeric" placeholder="例：5,000"><button id="addSavings">貯金</button></div>
+<div id="saveAmountPreview" class="money-preview"></div>
+
+<div class="actionGrid" style="margin-top:10px">
+<button class="secondary" id="withdrawSavings">貯金から戻す</button>
+<button class="secondary" id="clearSavings">残金に戻してリセット</button>
+</div>
+</div>
+
+<div class="card" id="summaryCard"><div class="meta">
+<div class="pill"><small>現在の残金</small><b id="balanceView">¥0</b></div>
+<div class="pill"><small>次の振込予定</small><b id="daysView">-</b></div>
+<div class="pill"><small>確定支払い</small><b id="fixedView">¥0</b></div>
+<div class="pill"><small>自由に使える総額</small><b id="freeView">¥0</b></div>
+</div></div>
+
+
+
+<div class="card" id="historyCard"><h2>履歴</h2><ul id="history" class="history"></ul>
+<div style="height:10px"></div><button class="full secondary" id="resetAll">全部リセット</button></div>
+
+<details class="card featureSettings" id="appSettings">
+<summary>⚙ 設定・追加機能</summary>
+<div class="settingsBody">
+
+<label>画面モード</label>
+<select id="uiMode">
+<option value="simple">かんたんモード（おすすめ）</option>
+<option value="detailed">詳細モード</option>
+</select>
+<div class="info modeInfo">
+<b>かんたんモード</b><br>
+<small>普段は「今日使える金額・残金・使ったお金」中心。細かい機能は隠します。</small>
+</div>
+
+<details class="subSettings">
+<summary>給料日・確定支払いの設定</summary>
+<div class="subSettingsBody">
+<div class="innerCard" id="paySettingsCard">
 <h2>給料日の設定</h2>
 <small>毎月の「○日払い」だけ設定。土日・祝日・銀行休業日は前の営業日に自動調整します。</small>
 <label>毎月の給料日</label>
@@ -215,25 +313,7 @@ button:active{transform:scale(.98)}
 </div>
 <div style="height:12px"></div><button class="full" id="savePaySettings">給料・給料日設定を保存</button>
 </div>
-
-<div class="card">
-<h2>今の残金</h2>
-<small>ここには「今この瞬間に使える残金」を入力してください。履歴があっても二重計算しません。</small>
-<input id="balance" type="text" inputmode="numeric" placeholder="例：38,000">
-<div id="balancePreview" class="money-preview"></div>
-<div style="height:12px"></div><button class="full" id="saveBalance">残金を保存して計算</button>
-</div>
-
-<div class="card" id="incomeCard">
-<h2>臨時収入</h2>
-<small>返金・副収入・お祝いなど、給料以外で入ったお金をそのまま残金に追加できます。</small>
-<label>金額</label>
-<div class="addrow"><input id="incomeAmount" type="text" inputmode="numeric" placeholder="例：10,000"><button id="addIncome">追加</button></div>
-<div id="incomeAmountPreview" class="money-preview"></div>
-<input id="incomeName" type="text" placeholder="メモ（任意）：臨時収入" style="margin-top:8px">
-</div>
-
-<div class="card">
+<div class="innerCard" id="paymentCard">
 <h2>給料日までの確定支払い</h2>
 <small>数字を入れて「追加」を押すだけ。合計は自動計算します。</small>
 <div style="height:10px"></div>
@@ -242,45 +322,44 @@ button:active{transform:scale(.98)}
 <ul id="payments" class="payments"></ul>
 <div class="total"><span>確定支払い合計</span><span id="fixedTotal">¥0</span></div>
 </div>
-
-<div class="card" id="savingsCard">
-<h2>貯金</h2>
-<div class="savingsBig" id="savingsView">¥0</div>
-<small id="savingsGoalText">目標金額を設定できます。</small>
-<div class="progress"><div id="savingsProgress"></div></div>
-<div id="savingsPercent"><small>0%</small></div>
-
-<label>目標貯金額</label>
-<input id="savingsGoal" type="text" inputmode="numeric" placeholder="例：500,000">
-<div id="savingsGoalPreview" class="money-preview"></div>
-<button class="full secondary" id="saveSavingsGoal">目標を保存</button>
-
-<label>貯金に移す金額</label>
-<div class="addrow"><input id="saveAmount" type="text" inputmode="numeric" placeholder="例：5,000"><button id="addSavings">貯金</button></div>
-<div id="saveAmountPreview" class="money-preview"></div>
-
-<div class="actionGrid" style="margin-top:10px">
-<button class="secondary" id="withdrawSavings">貯金から戻す</button>
-<button class="secondary" id="clearSavings">貯金だけリセット</button>
 </div>
+</details>
+
+<details class="subSettings">
+<summary>追加機能</summary>
+<div class="subSettingsBody">
+<small>必要なものだけONにできます。臨時収入・貯金をONにすると詳細モードへ切り替わります。</small>
+
+<div class="toggleRow">
+<div><b>給料の自動反映</b><br><small>給料額・自動加算／リセット</small></div>
+<label class="switch"><input id="useSalary" type="checkbox"><span class="slider"></span></label>
 </div>
 
-<div class="card"><div class="meta">
-<div class="pill"><small>現在の残金</small><b id="balanceView">¥0</b></div>
-<div class="pill"><small>次の振込予定</small><b id="daysView">-</b></div>
-<div class="pill"><small>確定支払い</small><b id="fixedView">¥0</b></div>
-<div class="pill"><small>自由に使える総額</small><b id="freeView">¥0</b></div>
-</div></div>
-
-<div class="card">
-<h2>使った金額を記録</h2>
-<div class="addrow"><input id="expenseAmount" type="text" inputmode="numeric" placeholder="例：780"><button id="addExpense">追加</button></div>
-<div id="expenseAmountPreview" class="money-preview"></div>
-<input id="expenseName" type="text" placeholder="メモ（任意）：コンビニ" style="margin-top:8px">
+<div class="toggleRow">
+<div><b>カレンダー</b><br><small>実際の振込予定日を表示</small></div>
+<label class="switch"><input id="useCalendar" type="checkbox"><span class="slider"></span></label>
 </div>
 
-<div class="card"><h2>履歴</h2><ul id="history" class="history"></ul>
-<div style="height:10px"></div><button class="full secondary" id="resetAll">全部リセット</button></div>
+<div class="toggleRow">
+<div><b>ボーナス</b><br><small>賞与予定日を管理</small></div>
+<label class="switch"><input id="useBonus" type="checkbox"><span class="slider"></span></label>
+</div>
+
+<div class="toggleRow">
+<div><b>臨時収入</b><br><small>給料以外の入金を追加</small></div>
+<label class="switch"><input id="useIncome" type="checkbox"><span class="slider"></span></label>
+</div>
+
+<div class="toggleRow">
+<div><b>貯金</b><br><small>目標額・達成率を管理</small></div>
+<label class="switch"><input id="useSavings" type="checkbox"><span class="slider"></span></label>
+</div>
+</div>
+</details>
+
+</div>
+</details>
+
 </div>
 
 <script>
@@ -294,6 +373,7 @@ const fmtDate=d=>`${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日（$
 let old=JSON.parse(localStorage.getItem("atoNanenState")||"{}");
 let state={
  onboardingDone:Boolean(old.onboardingDone),
+ uiMode:old.uiMode||"simple",
  features:Object.assign({salary:false,calendar:true,bonus:false,income:false,savings:false}, old.features||{}),
  balance:Number(old.balance||0),
  paydayDay:Number(old.paydayDay||25),
@@ -533,6 +613,7 @@ function finishInitialSetup(simple=false){
  state.balance=parseMoney($("onboardBalance").value);
  if(simple){
    state.features={salary:false,calendar:false,bonus:false,income:false,savings:false};
+   state.uiMode="simple";
  }else{
    state.features={
      salary:$("onboardSalary").checked,
@@ -549,6 +630,7 @@ function finishInitialSetup(simple=false){
      state.lastSalaryApplied=ymd(previousOrCurrentSalaryDate());
    }
  }
+ state.uiMode=(state.features.income||state.features.savings)?"detailed":"simple";
  state.bonusEnabled=state.features.bonus;
  state.onboardingDone=true;
  save();
@@ -566,10 +648,16 @@ $("finishOnboarding").onclick=()=>finishInitialSetup(false);
 $("simpleOnboarding").onclick=()=>finishInitialSetup(true);
 
 function applyFeatureVisibility(){
+ let detailed=state.uiMode==="detailed";
+
+ // Daily screen: simple mode keeps only the essentials + compact summary.
+ $("incomeCard").classList.toggle("hidden",!detailed || !state.features.income);
+ $("savingsCard").classList.toggle("hidden",!detailed || !state.features.savings);
+ $("historyCard").classList.toggle("hidden",!detailed);
+
+ // Settings-internal optional sections.
  $("salaryOptions").classList.toggle("hidden",!state.features.salary);
  $("calendarOptions").classList.toggle("hidden",!state.features.calendar);
- $("incomeCard").classList.toggle("hidden",!state.features.income);
- $("savingsCard").classList.toggle("hidden",!state.features.savings);
  toggleBonus();
 
  $("useSalary").checked=state.features.salary;
@@ -577,7 +665,14 @@ function applyFeatureVisibility(){
  $("useBonus").checked=state.features.bonus;
  $("useIncome").checked=state.features.income;
  $("useSavings").checked=state.features.savings;
+ $("uiMode").value=state.uiMode;
 }
+
+$("uiMode").onchange=()=>{
+ state.uiMode=$("uiMode").value||"simple";
+ save();applyFeatureVisibility();recalc();
+};
+
 function bindFeatureToggle(id,key){
  $(id).onchange=()=>{
    let was=state.features[key];
@@ -586,6 +681,9 @@ function bindFeatureToggle(id,key){
      let now=new Date();
      state.salaryAutoStart=ymd(now);
      state.lastSalaryApplied=ymd(previousOrCurrentSalaryDate());
+   }
+   if((key==="income" || key==="savings") && state.features[key]){
+     state.uiMode="detailed";
    }
    save();
    applyFeatureVisibility();
@@ -649,8 +747,24 @@ $("withdrawSavings").onclick=()=>{
  if(n>state.savings)return alert("貯金額を超えています。");
  state.savings-=n;state.incomes.push({amount:n,name:"貯金から戻す",time:new Date().toISOString()});save();recalc()
 };
-$("clearSavings").onclick=()=>{if(confirm("貯金額だけ0円にしますか？目標額は残します。")){state.savings=0;save();renderSavings()}};
+$("clearSavings").onclick=()=>{
+ if(!state.savings)return;
+ if(confirm("貯金額を残金に戻して0円にしますか？目標額は残します。")){
+   let n=state.savings;
+   state.savings=0;
+   state.incomes.push({amount:n,name:"貯金リセット（残金へ戻す）",time:new Date().toISOString()});
+   save();recalc();
+ }
+};
 $("resetAll").onclick=()=>{if(confirm("保存したデータを全部消しますか？")){localStorage.removeItem("atoNanenState");location.reload()}};
+
+
+$("expenseAmount").addEventListener("keydown",e=>{
+  if(e.key==="Enter"){e.preventDefault();$("addExpense").click();}
+});
+$("expenseName").addEventListener("keydown",e=>{
+  if(e.key==="Enter"){e.preventDefault();$("addExpense").click();}
+});
 
 fillSelects();
 fillOnboarding();
@@ -668,34 +782,4 @@ if(!state.onboardingDone){
 }
 updatePayInfo();recalc();
 if("serviceWorker"in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js"));
-</script></body></html<details class="card featureSettings">
-<summary>⚙ 追加機能・表示設定</summary>
-<div class="settingsBody">
-<small>必要な機能だけ表示できます。いつでも変更できます。</small>
-
-<div class="toggleRow">
-<div><b>給料の自動反映</b><br><small>給料額・自動加算／リセット</small></div>
-<label class="switch"><input id="useSalary" type="checkbox"><span class="slider"></span></label>
-</div>
-
-<div class="toggleRow">
-<div><b>カレンダー</b><br><small>実際の振込予定日を表示</small></div>
-<label class="switch"><input id="useCalendar" type="checkbox"><span class="slider"></span></label>
-</div>
-
-<div class="toggleRow">
-<div><b>ボーナス</b><br><small>賞与予定日を管理</small></div>
-<label class="switch"><input id="useBonus" type="checkbox"><span class="slider"></span></label>
-</div>
-
-<div class="toggleRow">
-<div><b>臨時収入</b><br><small>給料以外の入金を追加</small></div>
-<label class="switch"><input id="useIncome" type="checkbox"><span class="slider"></span></label>
-</div>
-
-<div class="toggleRow">
-<div><b>貯金</b><br><small>目標額・達成率を管理</small></div>
-<label class="switch"><input id="useSavings" type="checkbox"><span class="slider"></span></label>
-</div>
-</div></details>
->
+</script></body></html>
