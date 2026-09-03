@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#111827">
 <link rel="manifest" href="manifest.webmanifest">
-<title>あと何円？ v1.4</title>
+<title>あと何円？ v1.5</title>
 <style>
 :root{
   font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
@@ -187,26 +187,21 @@ button:active{transform:scale(.98)}
 <div class="wrap">
 <h1>あと何円？</h1><div class="sub">家計簿は続かない。でも今日いくら使えるかは知りたい。</div>
 <div class="card hero"><div class="label">今日使える金額</div><div id="todayBudget" class="amount">¥0</div><div id="statusText"></div></div>
-
-
-
-
-
-
-
-<div class="card">
-<h2>今の残金</h2>
-<small>ここには「今この瞬間に使える残金」を入力してください。履歴があっても二重計算しません。</small>
-<input id="balance" type="text" inputmode="numeric" placeholder="例：38,000">
-<div id="balancePreview" class="money-preview"></div>
-<div style="height:12px"></div><button class="full" id="saveBalance">残金を保存して計算</button>
-</div>
 <div class="card">
 <h2>使ったお金</h2><small>金額だけでもすぐ記録できます。</small>
 <div class="addrow"><input id="expenseAmount" type="text" inputmode="numeric" autocomplete="off" placeholder="例：780"><button id="addExpense">追加</button></div>
 <div id="expenseAmountPreview" class="money-preview"></div>
 <input id="expenseName" type="text" autocomplete="off" placeholder="メモ（任意）：コンビニ" style="margin-top:8px">
 </div>
+
+
+
+
+
+
+
+
+
 
 <div class="card" id="incomeCard">
 <h2>臨時収入</h2>
@@ -247,6 +242,13 @@ button:active{transform:scale(.98)}
 <div class="pill"><small>確定支払い</small><b id="fixedView">¥0</b></div>
 <div class="pill"><small>自由に使える総額</small><b id="freeView">¥0</b></div>
 </div></div>
+<div class="card">
+<h2>今の残金を修正</h2>
+<small>ここには「今この瞬間に使える残金」を入力してください。履歴があっても二重計算しません。</small>
+<input id="balance" type="text" inputmode="numeric" placeholder="例：38,000">
+<div id="balancePreview" class="money-preview"></div>
+<div style="height:12px"></div><button class="full" id="saveBalance">残金を保存して計算</button>
+</div>
 
 
 
