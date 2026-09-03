@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#111827">
 <link rel="manifest" href="manifest.webmanifest">
-<title>あと何円？ v1.1</title>
+<title>あと何円？ v1.2</title>
 <style>
 :root{
   font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
@@ -96,6 +96,18 @@ button:active{transform:scale(.98)}
  .wrap{padding:20px 13px 76px}.card{border-radius:19px;padding:16px}.amount{font-size:43px}
  .two,.actionGrid,.onboardingActions{grid-template-columns:1fr}.onboarding{padding:18px 12px}.onboardingBox{padding:19px;border-radius:23px}
 }
+
+.featureSettings{padding:0;overflow:hidden}
+.featureSettings summary{
+  list-style:none;cursor:pointer;padding:17px 18px;font-weight:900;color:#596278;
+  display:flex;align-items:center;justify-content:space-between
+}
+.featureSettings summary::-webkit-details-marker{display:none}
+.featureSettings summary:after{content:"＋";font-size:20px;color:#8a93a5}
+.featureSettings[open] summary:after{content:"−"}
+.featureSettings .settingsBody{padding:0 18px 16px;border-top:1px solid #edf0f5}
+.featureSettings .settingsBody>small{display:block;padding:12px 0 3px}
+
 </style>
 </head>
 <body>
@@ -154,38 +166,11 @@ button:active{transform:scale(.98)}
 </div>
 <div class="wrap">
 <h1>あと何円？</h1><div class="sub">家計簿は続かない。でも今日いくら使えるかは知りたい。</div>
+<div class="card hero"><div class="label">今日使える金額</div><div id="todayBudget" class="amount">¥0</div><div id="statusText"></div></div>
 
-<div class="card">
-<h2>表示する機能</h2>
-<small>必要な機能だけ表示できます。いつでも変更できます。</small>
 
-<div class="toggleRow">
-<div><b>給料の自動反映</b><br><small>給料額・自動加算／リセット</small></div>
-<label class="switch"><input id="useSalary" type="checkbox"><span class="slider"></span></label>
-</div>
 
-<div class="toggleRow">
-<div><b>カレンダー</b><br><small>実際の振込予定日を表示</small></div>
-<label class="switch"><input id="useCalendar" type="checkbox"><span class="slider"></span></label>
-</div>
 
-<div class="toggleRow">
-<div><b>ボーナス</b><br><small>賞与予定日を管理</small></div>
-<label class="switch"><input id="useBonus" type="checkbox"><span class="slider"></span></label>
-</div>
-
-<div class="toggleRow">
-<div><b>臨時収入</b><br><small>給料以外の入金を追加</small></div>
-<label class="switch"><input id="useIncome" type="checkbox"><span class="slider"></span></label>
-</div>
-
-<div class="toggleRow">
-<div><b>貯金</b><br><small>目標額・達成率を管理</small></div>
-<label class="switch"><input id="useSavings" type="checkbox"><span class="slider"></span></label>
-</div>
-</div>
-
-<div class="card hero"><div class="label">今日の予算</div><div id="todayBudget" class="amount">¥0</div><div id="statusText"></div></div>
 
 <div class="card" id="paySettingsCard">
 <h2>給料日の設定</h2>
@@ -683,4 +668,34 @@ if(!state.onboardingDone){
 }
 updatePayInfo();recalc();
 if("serviceWorker"in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js"));
-</script></body></html>
+</script></body></html<details class="card featureSettings">
+<summary>⚙ 追加機能・表示設定</summary>
+<div class="settingsBody">
+<small>必要な機能だけ表示できます。いつでも変更できます。</small>
+
+<div class="toggleRow">
+<div><b>給料の自動反映</b><br><small>給料額・自動加算／リセット</small></div>
+<label class="switch"><input id="useSalary" type="checkbox"><span class="slider"></span></label>
+</div>
+
+<div class="toggleRow">
+<div><b>カレンダー</b><br><small>実際の振込予定日を表示</small></div>
+<label class="switch"><input id="useCalendar" type="checkbox"><span class="slider"></span></label>
+</div>
+
+<div class="toggleRow">
+<div><b>ボーナス</b><br><small>賞与予定日を管理</small></div>
+<label class="switch"><input id="useBonus" type="checkbox"><span class="slider"></span></label>
+</div>
+
+<div class="toggleRow">
+<div><b>臨時収入</b><br><small>給料以外の入金を追加</small></div>
+<label class="switch"><input id="useIncome" type="checkbox"><span class="slider"></span></label>
+</div>
+
+<div class="toggleRow">
+<div><b>貯金</b><br><small>目標額・達成率を管理</small></div>
+<label class="switch"><input id="useSavings" type="checkbox"><span class="slider"></span></label>
+</div>
+</div></details>
+>
